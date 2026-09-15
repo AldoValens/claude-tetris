@@ -1,0 +1,69 @@
+name: Claude Issue Fix
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  fix:
+    # Solo corre cuando alguien con permiso de escritura añade la etiqueta
+    # auto-fix explícitamente (un issue no autoriza esto por sí solo).
+    if: github.event.label.name == 'auto-fix'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Implementar solución con Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Edit,Write,Grep,Glob,Bash(git:*),Bash(gh issue view:*),Bash(gh pr create:*)"
+          prompt: |
+            REPO: ${{ github.repository }}
+            ISSUE NUMBER: ${{ github.event.issue.number }}
+            TITLE: ${{ github.event.issue.title }}
+
+            Se te acaba de pedir, mediante la etiqueta `auto-fix`, que
+            implementes la solución para este issue en este Tetris vanilla
+            (HTML5 Canvas + CSS + JavaScript, sin dependencias ni build step).
+            Lee CLAUDE.md antes de empezar: describe la arquitectura de
+            game.js y las reglas del proyecto (por ejemplo, si cambias
+            COLS/ROWS/BLOCK hay que actualizar el width/height del
+            <canvas id="board"> en index.html).
+
+            Pasos:
+
+            1. Ejecuta `gh issue view ${{ github.event.issue.number }} --comments`
+               y localiza el comentario que empieza con el marcador HTML
+               `<!-- claude-triage -->`: contiene el diagnóstico automático
+               con el "Plan de solución propuesto" y los "Criterios de
+               aceptación". Ese plan es tu punto de partida. Si no existe ese
+               comentario, diagnostica el issue tú mismo antes de continuar.
+
+            2. Implementa el plan de solución. Mantén el estilo del código
+               existente (funciones planas + estado mutable a nivel de
+               módulo, sin frameworks ni dependencias nuevas). No hay suite de
+               tests automatizada: revisa cuidadosamente la lógica de
+               colisiones, rotación, line-clear, scoring y el loop de juego
+               para no romperlas.
+
+            3. Verifica cada criterio de aceptación del diagnóstico contra tu
+               cambio antes de continuar.
+
+            4. Crea una rama, comitea los cambios y abre un pull request con
+               `gh pr create` que incluya en su descripción `Closes #${{ github.event.issue.number }}`,
+               un resumen de la solución y cómo se verificó manualmente
+               (no hay tests: indica qué se jugó/probó en el navegador).
