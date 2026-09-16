@@ -252,3 +252,118 @@ body[data-skin="pastel"] #next-canvas {
 #pause-controls.hidden {
   display: none;
 }
+
+/* ---- Records ---- */
+.records-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #7aa2f7;
+}
+
+.records-table {
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 260px;
+}
+
+.records-table th,
+.records-table td {
+  padding: 4px 10px;
+  text-align: left;
+  color: #aaa;
+}
+
+.records-table th {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #555570;
+  font-weight: 600;
+}
+
+.records-table td:nth-child(3),
+.records-table td:nth-child(4) {
+  font-family: 'Courier New', Courier, monospace;
+  color: #7aa2f7;
+}
+
+.records-table tr.records-highlight {
+  background: rgba(122, 162, 247, 0.18);
+}
+
+.records-table tr.records-highlight td {
+  color: #e0e0e0;
+}
+
+.records-max-lines {
+  margin-top: 6px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: #7aa2f7;
+}
+
+.records-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.records-reset-btn {
+  margin-top: 8px;
+  background: transparent;
+  color: #e57373;
+  border: 1px solid #e57373;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.15s;
+}
+
+.records-reset-btn:hover {
+  background: rgba(229, 115, 115, 0.15);
+}
+
+#name-entry {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#name-entry.hidden {
+  display: none;
+}
+
+#name-input {
+  background: #1a1a25;
+  border: 1px solid #3a3a5a;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #e0e0e0;
+  font-size: 13px;
+  width: 140px;
+}
+
+#name-input:focus {
+  outline: none;
+  border-color: #7aa2f7;
+}
+
+#save-score-btn {
+  background: #7aa2f7;
+  color: #0f0f17;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.15s;
+}
+
+#save-score-btn:hover {
+  background: #9bbdff;
+}
