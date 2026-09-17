@@ -176,6 +176,24 @@ function renderRecords(highlightIndex) {
   bestLinesEl.textContent = bestLines;
 }
 
+const gameoverBox = document.getElementById('gameover-box');
+const pauseBox = document.getElementById('pause-box');
+const resumeBtn = document.getElementById('resume-btn');
+const pauseRestartBtn = document.getElementById('pause-restart-btn');
+const controlsToggleBtn = document.getElementById('controls-toggle-btn');
+const pauseControlsList = document.getElementById('pause-controls-list');
+const startLevelSelect = document.getElementById('start-level');
+
+const MAX_START_LEVEL = 15;
+for (let i = 1; i <= MAX_START_LEVEL; i++) {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = i;
+  startLevelSelect.appendChild(opt);
+}
+
+let startLevel = 1;
+
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
 }
@@ -436,6 +454,8 @@ function endGame() {
   cancelAnimationFrame(animId);
   overlayTitle.textContent = 'GAME OVER';
   overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
+  pauseBox.classList.add('hidden');
+  gameoverBox.classList.remove('hidden');
   overlay.classList.remove('hidden');
   renderRecords();
   if (qualifiesForTop(score)) {
@@ -456,12 +476,14 @@ function togglePause() {
   if (gameOver) return;
   paused = !paused;
   if (!paused) {
+    overlay.classList.add('hidden');
     lastTime = performance.now();
     loop(lastTime);
   } else {
     cancelAnimationFrame(animId);
-    overlayTitle.textContent = 'PAUSA';
-    overlayScore.textContent = '';
+    startLevelSelect.value = startLevel;
+    gameoverBox.classList.add('hidden');
+    pauseBox.classList.remove('hidden');
     overlay.classList.remove('hidden');
   }
 }
@@ -486,17 +508,18 @@ function init() {
   board = createBoard();
   score = 0;
   lines = 0;
-  level = 1;
+  level = startLevel;
   combo = 0;
   maxCombo = 0;
   paused = false;
   gameOver = false;
-  dropInterval = 1000;
+  dropInterval = Math.max(100, 1000 - (level - 1) * 90);
   dropAccum = 0;
   lastTime = performance.now();
   next = randomPiece();
   spawn();
   updateHUD();
+  pauseControlsList.classList.add('hidden');
   overlay.classList.add('hidden');
   nameEntry.classList.add('hidden');
   cancelAnimationFrame(animId);
@@ -506,7 +529,7 @@ function init() {
 
 document.addEventListener('keydown', e => {
   if (e.target === nameInput) return;
-  if (e.code === 'KeyP') { togglePause(); return; }
+  if (e.code === 'KeyP' || e.code === 'Escape') { togglePause(); return; }
   if (paused || gameOver) return;
   switch (e.code) {
     case 'ArrowLeft':
@@ -542,5 +565,14 @@ if (skinSelect) {
   skinSelect.addEventListener('change', e => applySkin(e.target.value));
 }
 document.body.dataset.skin = currentSkin;
+
+pauseRestartBtn.addEventListener('click', init);
+resumeBtn.addEventListener('click', togglePause);
+controlsToggleBtn.addEventListener('click', () => {
+  pauseControlsList.classList.toggle('hidden');
+});
+startLevelSelect.addEventListener('change', () => {
+  startLevel = Number(startLevelSelect.value);
+});
 
 init();
